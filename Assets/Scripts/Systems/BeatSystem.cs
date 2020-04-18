@@ -7,7 +7,7 @@ public class BeatSystem : MonoBehaviour
     private static BeatSystem instance;
     
     public static BeatSystem Instance{ get{ return instance; } }
-    
+
     public int BPM
     {
         get { return bpm; }
@@ -24,7 +24,7 @@ public class BeatSystem : MonoBehaviour
         { 
             beatsPerBar = value;
             ResetBeatCounter();
-            StartInvoke();
+            Start();
         }
     }
     public int BeatCounter{ get { return halfBeatCounter; } }
@@ -65,9 +65,16 @@ public class BeatSystem : MonoBehaviour
             return lastTimeWasHalfBeat ? time - (lastBeatTime + secondsPerHalfBeat) : time - lastBeatTime;
         }
     }
-    public float TimeTillNextBeat()
+    public float TimeTillNextBeat(bool isHalf = false)
     {
-        return lastBeatTime + secondsPerHalfBeat - Time.time;
+        if(isHalf)
+        {
+            return lastBeatTime + secondsPerHalfBeat - Time.time;
+        }
+        else
+        {
+            return lastBeatTime + secondsPerHalfBeat * (IsHalfBeat() ? 1.0f : 2.0f) - Time.time;
+        }
     }
     
     private void Awake() 
@@ -79,13 +86,14 @@ public class BeatSystem : MonoBehaviour
         else
         {
             instance = this;
+            CalculateTimer();
+            ResetBeatCounter();
         }
     }
     private void Start()
     {
-        CalculateTimer();
-        ResetBeatCounter();
-        StartInvoke();
+        CancelInvoke("Beat");
+        InvokeRepeating("Beat", 0, secondsPerHalfBeat);
     }
     private void CalculateTimer()
     {
@@ -97,11 +105,6 @@ public class BeatSystem : MonoBehaviour
     private void ResetBeatCounter()
     {
         halfBeatCounter = 0;
-    }
-    private void StartInvoke()
-    {
-        CancelInvoke("Beat");
-        InvokeRepeating("Beat", 0, secondsPerHalfBeat);
     }
     private void Beat()
     {
