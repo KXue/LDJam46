@@ -60,5 +60,4 @@ sysinfo.txt
 crashlytics-build.properties
 
 # Misc
-Assets/Scenes/Sandbox.unity
-Assets/Scenes/Sandbox.unity.meta
+*[Ss]andbox*
