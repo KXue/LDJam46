@@ -7,6 +7,11 @@ public class BeatSystem : MonoBehaviour
     private static BeatSystem instance;
     
     public static BeatSystem Instance{ get{ return instance; } }
+    
+    public static bool IsHalfBeat( int halfBeatCount )
+    {
+        return halfBeatCount % 2 == 0; 
+    }
 
     public int BPM
     {
@@ -27,7 +32,7 @@ public class BeatSystem : MonoBehaviour
             Start();
         }
     }
-    public int BeatCounter{ get { return halfBeatCounter; } }
+    public int HalfBeatCount{ get { return halfBeatCounter; } }
     public float SecondsPerHalfBeat{ get { return secondsPerHalfBeat; } }
 
     [SerializeField]
@@ -39,14 +44,10 @@ public class BeatSystem : MonoBehaviour
     private float secondsPerHalfBeat;
     private float lastBeatTime;
     
-    public bool IsHalfBeat()
-    {
-        return halfBeatCounter % 2 == 0; 
-    }
     public float NearestBeat(bool halfBeat = false)
     {
         float time = Time.time;
-        bool lastTimeWasHalfBeat = IsHalfBeat();
+        bool lastTimeWasHalfBeat = IsHalfBeat(HalfBeatCount);
         if(halfBeat)
         {
             float lastBeat = time - lastBeatTime;
@@ -73,7 +74,7 @@ public class BeatSystem : MonoBehaviour
         }
         else
         {
-            return lastBeatTime + secondsPerHalfBeat * (IsHalfBeat() ? 1.0f : 2.0f) - Time.time;
+            return lastBeatTime + secondsPerHalfBeat * (IsHalfBeat(HalfBeatCount) ? 1.0f : 2.0f) - Time.time;
         }
     }
     
@@ -110,11 +111,19 @@ public class BeatSystem : MonoBehaviour
     {
         lastBeatTime = Time.time;
         halfBeatCounter++;
-        //TODO: send beat signal here
+        
+        BeatMessage beatMessage = new BeatMessage();
+        beatMessage.Sender = gameObject;
+        beatMessage.HalfBeatCount = HalfBeatCount;
+
+        MessageBus.Instance.SendMessage(beatMessage);
+
         if (halfBeatCounter >= beatsPerBar * 2)
         {
             ResetBeatCounter();
-            //TODO: bar signal here
+            BarMessage barMessage = new BarMessage();
+            barMessage.Sender = gameObject;
+            MessageBus.Instance.SendMessage(barMessage);
         }
     }
 }

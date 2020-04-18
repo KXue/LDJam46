@@ -7,6 +7,11 @@ public class Message
 {
     public GameObject Sender { get; set; }
 }
+public class BeatMessage : Message
+{
+    public int HalfBeatCount { get; set; }
+}
+public class BarMessage : Message {}
 
 /*
 public class SimUpdateMessage : Message
