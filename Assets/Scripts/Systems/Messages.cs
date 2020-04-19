@@ -13,6 +13,11 @@ public class BeatMessage : Message
 }
 public class BarMessage : Message {}
 
+public class BeatDivisionChange : Message
+{
+	public int m_BeatDivision;
+}
+
 public class RequestPlaylistChange : Message
 {
 	public List<AudioClip> m_NextPlaylist;

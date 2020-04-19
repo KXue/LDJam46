@@ -16,11 +16,16 @@ public class MusicController : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-
+		MessageBus.Instance.AddListener<BeatDivisionChange>(OnBeatDivisionChange);
 	}
 
-    // Update is called once per frame
-    void Update()
+	private void OnDestroy()
+	{
+		MessageBus.Instance.RemoveListener<BeatDivisionChange>(OnBeatDivisionChange);
+	}
+
+	// Update is called once per frame
+	void Update()
     {
 		/*
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -31,39 +36,34 @@ public class MusicController : MonoBehaviour
 			MessageBus.Instance.SendMessage(message);
 		}
 		*/
+	}
 
-		/*
-		bool changePlaylist = false;
+	public void OnBeatDivisionChange(BeatDivisionChange message)
+	{
+		List<AudioClip> updatePlaylist = null;
 
-		if (Input.GetKeyDown(KeyCode.LeftArrow) && (m_CurrentPlayIndex > 0))
+		switch (message.m_BeatDivision)
 		{
-			m_CurrentPlayIndex--;
-			changePlaylist = true;
-		}
+			case 8:
+			case 4:
+				updatePlaylist = m_QuarterBeatTest;
+				break;
+			case 2:
+				updatePlaylist = m_HalfBeatTest;
+				break;
+			case 1:
+				updatePlaylist = m_WholeBeatTest;
+				break;
+			default:
+				break;
+		};
 
-		if (Input.GetKeyDown(KeyCode.RightArrow) && (m_CurrentPlayIndex+1 < 3))
+		if(updatePlaylist != null)
 		{
-			m_CurrentPlayIndex++;
-			changePlaylist = true;
+			RequestPlaylistChange playlistMessage = new RequestPlaylistChange();
+			playlistMessage.Sender = this.gameObject;
+			playlistMessage.m_NextPlaylist = updatePlaylist;
+			MessageBus.Instance.SendMessage(playlistMessage);
 		}
-
-		if(changePlaylist)
-		{
-			switch(m_CurrentPlayIndex)
-			{
-				case 0:
-					Play(m_WholeBeatTest);
-					break;
-				case 1:
-					Play(m_HalfBeatTest);
-					break;
-				case 2:
-					Play(m_QuarterBeatTest);
-					break;
-				default:
-					break;
-			}
-		}
-		*/
 	}
 }
